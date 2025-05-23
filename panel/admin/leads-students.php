@@ -85,13 +85,32 @@
       
 
       <div class="action-buttons">
-        <button type="button" class="btn-secondary" id="closeFilter">Close</button>
+        <button type="button" class="btn-secondary closeFilter">Close</button>
         <button type="submit" class="btn-primary">Search</button>
       </div>
     </form>
   </div>
 </div>
 <!-- Filter Model  -->
+
+<!-- Delete Model -->
+ <div id="deleteModal" class="modal-overlay">
+  <div class="modal-box">
+    <span class="close-btn">&times;</span>
+    <h2><i class="fas fa-filter"></i> Delete Confirmation</h2>
+
+      <!-- 🔴 Error message div added below heading -->
+      <div id="filterError" class="error-message" style="display: show; margin-bottom: 10px;">
+        Are you sure you want to delete this item?<br> This action cannot be undone.
+    </div>
+
+      <div class="action-buttons">
+              <button type="button" class="btn-secondary closeFilter">Close</button>
+              <button type="submit" id = "del-conf" class="btn-primary">Yes,Delete</button>
+      </div>
+  </div>
+</div>
+<!-- Delete Model -->
 
 <!-- Pagination... -->
   <div class="pagination">
@@ -201,8 +220,9 @@
       $('#filterModal').fadeIn(150);
     });
 
-    $('.close-btn, #closeFilter').click(function () {
+    $('.close-btn, .closeFilter').click(function () {
       $('#filterModal').fadeOut(150);
+      $("#deleteModal").fadeOut(150);
     });
 
     $('#filterForm').submit(function (e) {
@@ -293,4 +313,7 @@
     });
   })
 
+    $(document).on("click","#del",function(){
+      $("#deleteModal").fadeIn(150  );
+    })
 </script>
