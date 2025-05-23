@@ -112,6 +112,8 @@
 </div>
 <!-- Delete Model -->
 
+
+
 <!-- Pagination... -->
   <div class="pagination">
     <button class="page-btn">Prev</button>
@@ -315,5 +317,36 @@
 
     $(document).on("click","#del",function(){
       $("#deleteModal").fadeIn(150  );
+    })
+    $("#del-conf").on("click",function(){
+      const id = $("#del").data("pid");
+      console.log("confirm delete -->");
+      
+       $.ajax({
+            url: 'http://localhost:3000/v1/delete',     // URL to send the request to
+            type: 'POST',                 // or 'GET'
+            data: {"id":id},
+            success: function(res) {
+              // Code to run on successful res
+              console.log(res);
+              let printDataList = '';
+                   
+              if(res.status == "success"){
+               
+                $('#deleteModal').fadeOut(150);
+
+                  $("#errorPopup").html(` <div class="toast success-toast show"> <span class="toast-message"> Field Deleted SuccessFully</span>
+                                                            <button class="toast-close"><i class="fas fa-times"></i></button> </div>`);
+
+                setTimeout(() => {
+                  $(".toast").removeClass("show").remove("toast");
+                }, 3000);
+              }
+            },
+            error: function(xhr, status, error) {
+              // Code to run on error
+              console.error('Error:', error);
+            }
+          });
     })
 </script>

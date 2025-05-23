@@ -372,6 +372,15 @@ router.post("/filterLeads", async (req, res) => {
   }
 });
 
+router.post("/delete",(req,res) =>{
+  const data = req.body;
+
+  res.json({status:"success",
+            message:"data deleted successfully.",
+            code:200,
+  });
+})
+
 function formatName(name) {
   return name
     .toLowerCase()
