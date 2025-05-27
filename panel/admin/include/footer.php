@@ -13,6 +13,21 @@
   let currentBadge = null;
 
   $(document).on('click', '.open-status-modal', function () {
+
+     const LEADSTATUSMSG = {
+          0: "No Calls Made",
+          1: "Interested",
+          2: "Not Interested",
+          3: "Enrolled",
+      };
+      const LEADSTATUS = {
+        0:"pending",
+        1:"pending",
+        2:"inactive",
+        3:"active",
+      }
+
+      
     currentBadge = $(this); // store reference
     const currentStatus = currentBadge.data('status');
     $('#statusSelect').val(currentStatus);

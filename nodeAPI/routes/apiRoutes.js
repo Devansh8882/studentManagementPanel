@@ -4,6 +4,7 @@ const router = express.Router();
 const { NITDB } = require("../config/db.js");
 const nodemailer = require("nodemailer");
 const constents = require("../config/constents.js");
+const { ObjectId } = require("mongodb");
 
 router.post("/register", async (req, res) => {
   const nitDB = NITDB();
@@ -372,13 +373,49 @@ router.post("/filterLeads", async (req, res) => {
   }
 });
 
-router.post("/delete",(req,res) =>{
-  const data = req.body;
+router.post("/delete",async (req,res) =>{
+  
 
-  res.json({status:"success",
+  const nitDB = NITDB();
+  const data = req.body;
+  let error = false;
+  let msg = "";
+
+  if(!data.id){
+  error = true;
+  msg = "User Invalid..!!";
+  }
+
+  if(error == true){
+     return res.json({status:"error",
+            message:msg,
+            code:200,
+          });
+  }
+
+ if (error == false) {
+    let deleted = await nitDB
+      .collection("studentLead")
+      .deleteOne({_id :new ObjectId(data.id)})
+
+      if(deleted.acknowledged){
+      return  res.json({status:"success",
             message:"data deleted successfully.",
             code:200,
-  });
+          });
+      }else{
+      return res.json({status:"error",
+            message:"Someting Went Wrong",
+            code:200,
+          });
+      }
+  
+  }
+ 
+})
+
+router.post("/fillField",async (req,res) => {
+  
 })
 
 function formatName(name) {

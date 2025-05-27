@@ -90,6 +90,12 @@
   $(document).ready(function(){
     const subARR = ["cs","ba","eng"]
 
+    //  const queryString = window.location.search;
+    // console.log("queryString -->",queryString,window,window.location);
+    
+    autoFill(); // auto fill fields if redirected from lead page
+
+
     $(".student-form").on("submit",function (e){
       e.preventDefault();
       let name = $("#name").val() ||"" ;
@@ -201,5 +207,33 @@
       }
       
     })
+
+       function autoFill(){
+       
+        const QS = window.location.search 
+        const params = new URLSearchParams(QS);
+        let id = params.get("id");
+        // console.log("id-->",id,"QS-->",QS,"params-->",params);
+
+        if(id){
+           $.ajax({
+                url:"http://localhost:3000/v1/fillField",
+                method:"POST",
+                data:{"id":id},
+                success:function(res){
+                   console.log("res--->",res);
+                   
+                },
+                error:function(e){
+                    console.log("error caugth while calling api-->",e);
+                    
+                }
+    
+            })
+        }
+        
+          
+    }
+
   })
 </script>
