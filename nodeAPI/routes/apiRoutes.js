@@ -415,7 +415,37 @@ router.post("/delete",async (req,res) =>{
 })
 
 router.post("/fillField",async (req,res) => {
+
+  const nitDB = NITDB();
+  const id = req.body.id;
+  console.log("id-->",id);
   
+  let error = true;
+  let msg = ""
+  if(!id){
+    error = true;
+    msg = "Error Fatching Data..!!";
+  } 
+  if(error == true){
+    res.json({
+      status:"error",
+      message:msg,
+      code:500
+    })
+  }
+  if(error == false){
+
+    let detail = await nitDB
+      .collection("studentLead")
+      .findOne({_id :new ObjectId(id)})
+      .toArray();
+
+     res.json({
+      status:"success",
+      message:detail,
+      code:200
+    })
+  }
 })
 
 function formatName(name) {
