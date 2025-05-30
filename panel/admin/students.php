@@ -32,11 +32,13 @@
         <th>Gender</th>
         <th>Program</th>
         <th>Status</th>
+        <th>Action</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody  id = "table-content">
+       <tr class="no-data-row"><td colspan="9">🚫 No Data Found</td></tr>
       <!-- Sample data row (replace with PHP/MySQL loop in real use) -->
-      <tr>
+      <!-- <tr>
         <td>1</td>
         <td>Alice Johnson</td>
         <td>alice@example.com</td>
@@ -45,12 +47,12 @@
         <td>Female</td>
         <td>B.Tech</td>
         <td>
-        <span class="status-badge active open-status-modal" data-status="active">  <!--- res.leads[lead].status // add this to your code --->
+        <span class="status-badge active open-status-modal" data-status="active">     - res.leads[lead].status // add this to your code -
             Active
         </span>
         </td>
 
-      </tr>
+      </tr> -->
       <!-- Add more rows here -->
     </tbody>
   </table>
@@ -70,16 +72,18 @@
     <select id="statusSelect" class="input">
       <?php 
       foreach ($LEADSTATUSMSG as $x=>$y) {
-       
-            echo "<option value='$LEADSTATUS[$x]'>$y</option>";
-
+        if($y != "No Calls Made"){
+          
+          echo "<option value='$x'>$y</option>";
+          
+        }
       }
      
 
       ?>
     </select>
     <div class="modal-actions">
-      <button id="confirmStatusChange" class="submit-btn">Change Status</button>
+      <button id="confirmStatusChange" data-page="all" class="submit-btn">Change Status</button>
       <button id="closeModal" class="btn nav-btn">Cancel</button>
     </div>
   </div>
@@ -161,45 +165,142 @@
 <script>
   $(document).ready(function(){
     
-   
+    
+    const subARR = {
+      cs : 'Computer Science',
+      ba: 'Business Administration',
+      eng : 'Engineering',
+    }
+    const LEADSTATUSMSG = {
+      // 0: "No Calls Made",
+      1: "Interested",
+      2: "Not Interested",
+      3: "Enrolled",
+    };
+    const LEADSTATUS = {
+      // 0:"pending",
+      1:"pending",
+      2:"inactive",
+      3:"active",
+    }
+    
+    printLeads();
 
-   const subARR = {
-        cs : 'Computer Science',
-        ba: 'Business Administration',
-        eng : 'Engineering',
+
+
+    $('#filterForm').submit(function (e) {
+      e.preventDefault();
+      
+      console.log("Filter submitted:");
+
+      let email =  $("#email").val() || "";
+      let name =  $("#name").val() || "";
+      let gndr =  $("#gndr").val() || "";
+      let phone =  $("#phone").val() || "";
+      let program =  $("#program").val() || "";
+      let error = false;
+      let msg = ""; 
+
+      console.log(email,name,gndr,phone,program,(!email  && !name  && !gndr  && !phone  && !program));
+      
+      if(!email  && !name  && !gndr  && !phone  && !program){
+        error = true;
+        msg = "Please Select a Filter..!!"
       }
-      const LEADSTATUSMSG = {
-          0: "No Calls Made",
-          1: "Interested",
-          2: "Not Interested",
-          3: "Enrolled",
-      };
-      const LEADSTATUS = {
-        0:"pending",
-        1:"pending",
-        2:"inactive",
-        3:"active",
+
+      if(error == true ){
+        $('#filterError').text(msg).show();
+        $("#filterError").fadeOut(2000);
+        return;
+      }
+      if(error == false){
+        let FILTERDATA = {};
+
+        if(email) FILTERDATA.email = email;
+        if(name) FILTERDATA.name = name ;
+        if(gndr) FILTERDATA.gndr = gndr ;
+        if(phone) FILTERDATA.phone = phone ; 
+        if(program) FILTERDATA.program = program; 
+       
+        console.log("data -- >",FILTERDATA);
+        
+        $.ajax({
+            url: 'http://localhost:3000/v1/Filter',     // URL to send the request to
+            type: 'POST',                 // or 'GET'
+            data: {FILTERDATA , "page":"all"},
+            success: function(res) {
+              // Code to run on successful res
+              console.log(res);
+              let printDataList = '';
+                if(res.leads.length > 0){
+                        let count = 1; 
+                            for (lead in res.leads) {
+                                console.log("lead",res.leads[lead]);
+                                
+                                    printDataList += ` <tr>
+                                                        <td>${count++}</td>
+                                                        <td>${res.leads[lead].name}</td>
+                                                        <td>${res.leads[lead].email}</td>
+                                                        <td>${res.leads[lead].phone}</td>
+                                                        <td>${res.leads[lead].address}</td>
+                                                        <td>${(res.leads[lead].gender == "M")?"Male":"Female"}</td>
+                                                        <td>${subARR[res.leads[lead].program]}</td>
+                                                        <td>
+                                                        <span class="status-badge open-status-modal ${LEADSTATUS[res.leads[lead].status]} " data-status = "${res.leads[lead].status}" data-pid = "${res.leads[lead]._id}" >
+                                                            ${LEADSTATUSMSG[res.leads[lead].status]}
+                                                        </span>
+                                                        </td>
+                                                        <td><button style="cursor:pointer" data-pid = "${res.leads[lead]._id}" id="process"><i class="fas fa-edit"></i></button>
+                                                        <button style="cursor:pointer" data-pid = "${res.leads[lead]._id}" id="del"> <i class="fas fa-trash-alt"></i></button></td>
+
+
+                                                    </tr>`;
+                                                    // open-status-modal -->class to open model..
+                        } 
+                        
+                       }else{
+                          printDataList = ` <tr class="no-data-row"><td colspan="10">🚫 No Data Found</td></tr>`
+                       }
+                        $("#table-content").html(printDataList);
+            },
+            error: function(xhr, status, error) {
+              // Code to run on error
+              console.error('Error:', error);
+            }
+          });
+
       }
 
-      $('#openFilterModal').click(function () {
-      $('#filterModal').fadeIn(150);
-    });
-
-   $('.close-btn, .closeFilter').click(function () {
+      // Close modal
       $('#filterModal').fadeOut(150);
-      $("#deleteModal").fadeOut(150);
     });
-        $(document).on("click","#del",function(){
-      $("#deleteModal").fadeIn(150  );
-    })
+
+
+
+    $('#openFilterModal').click(function () {
+      $('#filterModal').fadeIn(150);
+      });
+
+    $('.close-btn, .closeFilter').click(function () {
+        $('#filterModal').fadeOut(150);
+        $("#deleteModal").fadeOut(150);
+      });
+    
+      $(document).on("click","#del",function(){
+        const id = $(this).data("pid");
+        $("#del-conf").data("pid",id)
+        $("#deleteModal").fadeIn(150);    
+    
+      })
+
      $("#del-conf").on("click",function(){
-      const id = $("#del").data("pid");
+      const id = $(this).data("pid");
       console.log("confirm delete -->");
       
        $.ajax({
             url: 'http://localhost:3000/v1/delete',     // URL to send the request to
             type: 'POST',                 // or 'GET'
-            data: {"id":id},
+            data: {"id":id,"page":"all"},
             success: function(res) {
               // Code to run on successful res
               console.log(res);
@@ -234,6 +335,64 @@
           // $("#")
     })     
   
+  $(document).on("click","#process",function(){
+    console.log("process button clicked...!!");
+    id = $(this).data("pid");
+    console.log("value of id --->",id);
+    
+
+    window.location.href = `http://localhost/newProjectWork/panel/admin/add-student.php?id=${id}&&page=all`;
+  })
+
+
+ function printLeads(){
+       
+
+        $.ajax({
+                    url:"http://localhost:3000/v1/studentList",
+                    method:"POST",
+                    data:{"page":"all"},
+                    success:function(res){  
+                       let leads = res.leads;
+                       console.log("leads-->",leads,typeof leads);
+                     
+                       let printDataList = "";
+
+                       if(leads.length > 0){
+                        let count = 1; 
+                            for (lead in leads) {
+                                console.log("lead",leads[lead]);
+                                
+                                    printDataList += ` <tr>
+                                                        <td>${count++}</td>
+                                                        <td>${leads[lead].name}</td>
+                                                        <td>${leads[lead].email}</td>
+                                                        <td>${leads[lead].phone}</td>
+                                                        <td>${leads[lead].address}</td>
+                                                        <td>${(leads[lead].gender == "M")?"Male":"Female"}</td>
+                                                        <td>${subARR[leads[lead].program]}</td>
+                                                        <td>
+                                                        <span class="status-badge open-status-modal ${LEADSTATUS[leads[lead].status]} " data-status = "${leads[lead].status}" data-pid = "${leads[lead]._id}" >
+                                                            ${LEADSTATUSMSG[leads[lead].status]}
+                                                        </span>
+                                                        </td>
+                                                        <td><button style="cursor:pointer" data-pid = "${leads[lead]._id}" id="process"><i class="fas fa-edit"></i></button>
+                                                        <button style="cursor:pointer" data-pid = "${leads[lead]._id}" id="del"> <i class="fas fa-trash-alt"></i></button></td>
+
+
+                                                    </tr>`;
+                                                    // open-status-modal -->class to open model..
+                        } 
+                        
+                       }else{
+                          printDataList = ` <tr class="no-data-row"><td colspan="9">🚫 No Data Found</td></tr>` 
+                       }
+                        $("#table-content").html(printDataList);
+
+                    }
+        })
+    }
+
   })
 
 </script>

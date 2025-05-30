@@ -3,13 +3,13 @@
            "No Calls Made",
            "Interested",
            "Not Interested",
-           "Enrolled",
+          
       ];
        $LEADSTATUS = [
             "pending",
             "pending",
             "inactive",
-            "active",
+            
       ]
       
       ?>
@@ -36,6 +36,7 @@
       </tr>
     </thead>
     <tbody id = "table-content">
+       <tr class="no-data-row"><td colspan="10">🚫 No Data Found</td></tr>
       <!-- Sample data row (replace with PHP/MySQL loop in real use) -->
       <!-- <tr>
         <td>1</td>
@@ -64,7 +65,7 @@
       <?php 
       foreach ($LEADSTATUSMSG as $x=>$y) {
        
-            echo "<option value='$LEADSTATUS[$x]'>$y</option>";
+            echo "<option value='$x'>$y</option>";
 
       }
      
@@ -72,7 +73,7 @@
       ?>
     </select>
     <div class="modal-actions">
-      <button id="confirmStatusChange" class="submit-btn">Change Status</button>
+      <button id="confirmStatusChange" data-page="lead" class="submit-btn">Change Status</button>
       <button id="closeModal" class="btn nav-btn">Cancel</button>
     </div>
   </div>
@@ -185,7 +186,7 @@
     console.log("value of id --->",id);
     
 
-    window.location.href = `http://localhost/newProjectWork/panel/admin/add-student.php?id=${id}`;
+    window.location.href = `http://localhost/newProjectWork/panel/admin/add-student.php?id=${id}&&page=lead`;
   })
  
 
@@ -213,9 +214,9 @@
        
 
         $.ajax({
-                    url:"http://localhost:3000/v1/leads",
+                    url:"http://localhost:3000/v1/studentList",
                     method:"POST",
-                    data:{},
+                    data:{"page":"lead"},
                     success:function(res){  
                        let leads = res.leads;
                        console.log("leads-->",leads,typeof leads);
@@ -304,9 +305,9 @@
         console.log("data -- >",FILTERDATA);
         
         $.ajax({
-            url: 'http://localhost:3000/v1/filterLeads',     // URL to send the request to
+            url: 'http://localhost:3000/v1/filter',     // URL to send the request to
             type: 'POST',                 // or 'GET'
-            data: {FILTERDATA},
+            data: {FILTERDATA , "page":"lead"},
             success: function(res) {
               // Code to run on successful res
               console.log(res);
@@ -355,16 +356,20 @@
     });
 
     $(document).on("click","#del",function(){
-      $("#deleteModal").fadeIn(150  );
+      const id = $(this).data("pid");
+       $("#del-conf").data("pid",id)
+      $("#deleteModal").fadeIn(150);
+
     })
+
     $("#del-conf").on("click",function(){
-          const id = $("#del").data("pid");
+          const id = $(this).data("pid");
           console.log("confirm delete -->");
           
           $.ajax({
                 url: 'http://localhost:3000/v1/delete',     // URL to send the request to
                 type: 'POST',                 // or 'GET'
-                data: {"id":id},
+                data: {"id":id,"page":"lead"},
                 success: function(res) {
                   // Code to run on successful res
                   console.log(res);

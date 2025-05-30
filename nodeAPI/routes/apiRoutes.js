@@ -324,27 +324,78 @@ router.post("/addStudent", async (req, res) => {
   }
 });
 
-router.post("/leads", async (req, res) => {
+router.post("/studentList", async (req, res) => {
   console.log("in leads api");
 
-  const nitDB = NITDB();
-  let data = req.body?.data || {};
-  let leads = await nitDB.collection("studentLead").find({}).toArray();
-  return res.json({
-    status: "success",
-    leads,
-    code: 200,
-  });
+   const nitDB = NITDB();
+   const id = req.body?.id || ""; 
+   const page = req.body?.page || "all";
+
+    console.log("id-->",id,"page-->", page);
+    if(page == "lead"){
+      if(id){
+        let detail = await nitDB
+          .collection("studentLead")
+          .find({_id :new ObjectId(id)})
+          .toArray();
+
+        return res.json({
+          status:"success",
+          detail,
+          code:200
+        })
+      }else{
+        let leads = await nitDB.collection("studentLead").find({}).toArray();
+          return res.json({
+            status: "success",
+            leads,
+            code: 200,
+          });
+      }
+    }
+
+      else if(page == "all"){
+      if(id){
+        let detail = await nitDB
+          .collection("student")
+          .find({_id :new ObjectId(id)})
+          .toArray();
+
+        return res.json({
+          status:"success",
+          detail,
+          code:200
+        })
+      }else{
+        let leads = await nitDB.collection("student").find({}).toArray();
+          return res.json({
+            status: "success",
+            leads,
+            code: 200,
+          });
+      }
+    }
+    else{
+       return res.json({
+            status: "error",
+            message:"Invalid API Call",
+            code: 200,
+          });
+    }
+
+ 
 });
 
-router.post("/filterLeads", async (req, res) => {
+router.post("/filter", async (req, res) => {
   console.log("in filter leads api");
 
   let filterData = req.body.FILTERDATA || {};
+  const page = req.body.page || "";
   let error = false;
   let msg = "";
-
   let filterQuery = {};
+
+  const collection = page == "all"?"student":"studentLead"
 
   const nitDB = NITDB();
   if (filterData.lenggth < 1) {
@@ -361,7 +412,7 @@ router.post("/filterLeads", async (req, res) => {
 
   if (error == false) {
     let leads = await nitDB
-      .collection("studentLead")
+      .collection(collection)
       .find(filterQuery)
       .toArray();
 
@@ -381,6 +432,8 @@ router.post("/delete",async (req,res) =>{
   let error = false;
   let msg = "";
 
+  const collection = data.page == "all"?"student":"studentLead"
+
   if(!data.id){
   error = true;
   msg = "User Invalid..!!";
@@ -395,10 +448,13 @@ router.post("/delete",async (req,res) =>{
 
  if (error == false) {
     let deleted = await nitDB
-      .collection("studentLead")
+      .collection(collection)
       .deleteOne({_id :new ObjectId(data.id)})
 
-      if(deleted.acknowledged){
+  console.log("deleted-->",deleted);
+  
+
+      if(deleted.acknowledged && deleted.deletedCount > 0){
       return  res.json({status:"success",
             message:"data deleted successfully.",
             code:200,
@@ -414,38 +470,77 @@ router.post("/delete",async (req,res) =>{
  
 })
 
-router.post("/fillField",async (req,res) => {
+router.post("/statusUpdate",async (req,res) => {
 
-  const nitDB = NITDB();
-  const id = req.body.id;
-  console.log("id-->",id);
+  console.log("api called for update status");
   
-  let error = true;
-  let msg = ""
-  if(!id){
+  const nitDB = NITDB();
+  const data = req.body;
+  console.log("logg-->",data);
+
+  let error = false;
+  let msg = "";
+
+  if(!data?.id){
     error = true;
-    msg = "Error Fatching Data..!!";
-  } 
+    msg = "Invlaid Information..!!";
+  }
+   if(!data?.status || data.status > 3 || data.status < 0){
+    error = true;
+    msg = "Invlaid Information..!!";
+  }
+  console.log("checking -->data?.page ",data?.page ,`data?.page && (data.page == "all" || data.page == "lead")-->`,data?.page && (data.page == "all" || data.page == "lead"));
+  
+  if(!data?.page || data.page != "all" && data.page != "lead"){
+    console.log("in error condition");
+    
+     error = true;
+     msg="Invalid Information..!!";
+  }
+  
   if(error == true){
-    res.json({
-      status:"error",
+    return res.json({
+      status : "error",
       message:msg,
-      code:500
+      code:500,
     })
   }
   if(error == false){
 
-    let detail = await nitDB
-      .collection("studentLead")
-      .findOne({_id :new ObjectId(id)})
-      .toArray();
-
-     res.json({
-      status:"success",
-      message:detail,
-      code:200
+    let inserted ;
+      
+    if(data.page == "lead"){
+      inserted = await nitDB.collection("studentLead").updateOne(
+        { _id: new ObjectId(data.id) }, 
+        {
+          $set: {
+            status : data.status,
+          }
+        },
+        { upsert: true }
+      )}
+    
+    if(data.page == "all"){
+      inserted = await nitDB.collection("student").updateOne(
+        { _id:new ObjectId(data.id) }, 
+        {
+          $set: {
+            status : data.status,
+          }
+        },
+        { upsert: true }
+      )}
+    
+  if(inserted?.acknowledged){
+    return res.json({
+      status : "success",
+      message:"Status Updated..!!",
+      code:200,
     })
   }
+
+  }
+  
 })
 
 function formatName(name) {
@@ -456,3 +551,4 @@ function formatName(name) {
     .join(" ");
 }
 module.exports = router;
+ 

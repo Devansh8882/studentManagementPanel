@@ -190,7 +190,9 @@
 
                     setTimeout(() => {
                         $(".toast").removeClass("show").remove("toast");
-                    }, 3000);
+                       
+                          window.location.href = "http://localhost/newProjectWork/panel/admin/students.php"
+                    }, 1000);
                 },
                 error:function(e){
                     console.log("error caugth while calling api-->",e);
@@ -210,18 +212,42 @@
 
        function autoFill(){
        
-        const QS = window.location.search 
+        const QS = window.location.search || "";
         const params = new URLSearchParams(QS);
-        let id = params.get("id");
+        let id = params.get("id") || "";
+        let page = params.get("page") || "";
         // console.log("id-->",id,"QS-->",QS,"params-->",params);
-
+        
         if(id){
+          console.log("id found in params!!!");
+          
            $.ajax({
-                url:"http://localhost:3000/v1/fillField",
+                url:"http://localhost:3000/v1/studentList",
                 method:"POST",
-                data:{"id":id},
+                data:{"id":id,"page":page},
                 success:function(res){
-                   console.log("res--->",res);
+                  
+                  //  console.log("res--->",res);
+                  //   console.log("res.name",res.detail.name);
+                    
+                        
+
+                  $("#name").val(res.detail[0].name);
+                  $("#email").val(res.detail[0].email);
+                  $("#gndr").val(res.detail[0].gender); 
+                  $("#phone").val(res.detail[0].phone);
+                  $("#program").val(res.detail[0].program);
+                  $("#adrs").val(res.detail[0].address);
+
+                  if(res.detail[0]?.father)$("#fn").val(res.detail[0].father);
+                  if(res.detail[0]?.mother)$("#mn").val(res.detail[0].mother);
+                  if(res.detail[0]?.qualification)$("#hq").val(res.detail[0].qualification);
+                  // console.log(typeof res.detail[0]?.status);
+                  
+                  if(res.detail[0]?.status && (res.detail[0]?.status == 3 || res.detail[0]?.status == 1))$("#enroled").val(res.detail[0].status);
+
+                 
+                  //  $("#status").val(res.)
                    
                 },
                 error:function(e){
