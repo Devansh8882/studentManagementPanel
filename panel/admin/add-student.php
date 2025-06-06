@@ -108,6 +108,8 @@
       let hq = $("#hq").val() ||"" ;
       let program = $("#program").val() ||"" ;
       let enroled = $("#enroled").val() ||"" ;
+     
+      const id = params.get("id") || "";
       const regexForName = /^[A-Za-z]+(?: [A-Za-z]+)?$/;
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -180,7 +182,7 @@
                 $.ajax({
                 url:"http://localhost:3000/v1/addStudent",
                 method:"POST",
-                data:{"data":STUDENTDATA},
+                data:{"data":STUDENTDATA,"sid":id},
                 success:function(res){
                     // alert(res.message);
                     $("#errorPopup").html(` <div class="toast success-toast show">

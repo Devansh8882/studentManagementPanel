@@ -188,6 +188,7 @@ router.post("/addStudent", async (req, res) => {
   const nitDB = NITDB();
 
   const data = req.body.data;
+  const id = req.body.sid;
   console.log("data-->", data);
 
   let error = false;
@@ -264,13 +265,26 @@ router.post("/addStudent", async (req, res) => {
     });
   }
   if (error == false) {
-    console.log("data before inserting..", data);
 
-    inserted = await nitDB.collection("student").insertOne(data);
-    console.log("inserted-->", inserted);
+    const exists = db.collectionName.findOne({ _id: ObjectId(id) }) !== null;
+    print(exists); // true or false
+
+    console.log("data before inserting..", data);
+    
+    let inserted ;
+    if(exists == false){
+
+      inserted = await nitDB.collection("student").insertOne(data);
+      console.log("inserted-->", inserted);
+    }else{
+      
+      inserted = await nitDB.collection("student").updateOne({_id:id}, {$set:data}, {$upsert:true});
+      console.log("upserted -->", upserted);
+    }
 
     if (inserted?.acknowledged) {
-      // mail to Registered student..
+    
+      if(!exists){// mail to Registered student..
       const transporter = nodemailer.createTransport({
         service: "Gmail",
         auth: {
@@ -309,6 +323,7 @@ router.post("/addStudent", async (req, res) => {
         }
       });
       // Mail Done....
+}
       return res.json({
         status: "success",
         message: "Student Enrolled..!!",
