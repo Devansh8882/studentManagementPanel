@@ -266,8 +266,9 @@ router.post("/addStudent", async (req, res) => {
   }
   if (error == false) {
 
-    const exists = db.collectionName.findOne({ _id: ObjectId(id) }) !== null;
-    print(exists); // true or false
+    const exists = db.collectionName.findOne({ _id: ObjectId(id) }) !== null; // true or false
+    console.log("exists value -- >",exists);
+    
 
     console.log("data before inserting..", data);
     
@@ -284,46 +285,46 @@ router.post("/addStudent", async (req, res) => {
 
     if (inserted?.acknowledged) {
     
-      if(!exists){// mail to Registered student..
-      const transporter = nodemailer.createTransport({
-        service: "Gmail",
-        auth: {
-          user: "nitcgl.fullsuportportal@gmail.com",
-          pass: "sift agct rfjo mgbm",
-        },
-      });
+      if(!exists){
+        // mail to Registered student..
+        const transporter = nodemailer.createTransport({
+          service: "Gmail",
+          auth: {
+            user: "nitcgl.fullsuportportal@gmail.com",
+            pass: "sift agct rfjo mgbm",
+          },
+        });
 
-      const mailOptions = {
-        from: "nitcgl.fullsuportportal@gmail.com",
-        to: data.email,
-        subject: `Welcome TO NIT ,${data.name}`,
-        text: `Dear ${data.name},
+        const mailOptions = {
+          from: "nitcgl.fullsuportportal@gmail.com",
+          to: data.email,
+          subject: `Welcome TO NIT ,${data.name}`,
+          text: `Dear ${data.name},
 
-    Congratulations! We are pleased to inform you that you have been successfully enrolled at NIT College.
+                  Congratulations! We are pleased to inform you that you have been successfully enrolled at NIT College.
 
-    We are excited to welcome you into our academic community. Your journey toward excellence starts here, and we are committed to supporting you every step of the way.
+                  We are excited to welcome you into our academic community. Your journey toward excellence starts here, and we are committed to supporting you every step of the way.
 
-    You will receive further information regarding your classes, orientation, and next steps shortly.
+                  You will receive further information regarding your classes, orientation, and next steps shortly.
 
-    If you have any questions, feel free to contact us at any time.
+                  If you have any questions, feel free to contact us at any time.
 
-    Best regards,
-    NIT College Admissions Team.
+                  Best regards,
+                  NIT College Admissions Team. `,
+        };
 
-                    `,
-      };
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            console.log("Error sending mail:", error);
+          }
+          console.log("Email sent:", info.response);
+          if (info.response) {
+            console.log("E-mail send successfully..!!");
+          }
+        });
+        // Mail Done....
+      }
 
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.log("Error sending mail:", error);
-        }
-        console.log("Email sent:", info.response);
-        if (info.response) {
-          console.log("E-mail send successfully..!!");
-        }
-      });
-      // Mail Done....
-}
       return res.json({
         status: "success",
         message: "Student Enrolled..!!",
