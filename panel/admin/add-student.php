@@ -93,7 +93,7 @@
     //  const queryString = window.location.search;
     // console.log("queryString -->",queryString,window,window.location);
     
-    autoFill(); // auto fill fields if redirected from lead page
+    autoFill(); // auto fill fields if redirected from lead page // all page
 
 
     $(".student-form").on("submit",function (e){
@@ -109,6 +109,8 @@
       let program = $("#program").val() ||"" ;
       let enroled = $("#enroled").val() ||"" ;
      
+      const QS = window.location.search || "";
+      const params = new URLSearchParams(QS);
       const id = params.get("id") || "";
       const regexForName = /^[A-Za-z]+(?: [A-Za-z]+)?$/;
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -229,25 +231,29 @@
                 data:{"id":id,"page":page},
                 success:function(res){
                   
-                  //  console.log("res--->",res);
+                   console.log("res--->",res);
                   //   console.log("res.name",res.detail.name);
                     
                         
+                  if(res.status == "success"){
 
-                  $("#name").val(res.detail[0].name);
-                  $("#email").val(res.detail[0].email);
-                  $("#gndr").val(res.detail[0].gender); 
-                  $("#phone").val(res.detail[0].phone);
-                  $("#program").val(res.detail[0].program);
-                  $("#adrs").val(res.detail[0].address);
+                    $(".page-title").text(`Edit Student`);
 
-                  if(res.detail[0]?.father)$("#fn").val(res.detail[0].father);
-                  if(res.detail[0]?.mother)$("#mn").val(res.detail[0].mother);
-                  if(res.detail[0]?.qualification)$("#hq").val(res.detail[0].qualification);
-                  // console.log(typeof res.detail[0]?.status);
-                  
-                  if(res.detail[0]?.status && (res.detail[0]?.status == 3 || res.detail[0]?.status == 1))$("#enroled").val(res.detail[0].status);
+                    $("#name").val(res.detail[0].name);
+                    $("#email").val(res.detail[0].email);
+                    $("#gndr").val(res.detail[0].gender); 
+                    $("#phone").val(res.detail[0].phone);
+                    $("#program").val(res.detail[0].program);
+                    $("#adrs").val(res.detail[0].address);
 
+                    if(res.detail[0]?.father)$("#fn").val(res.detail[0].father);
+                    if(res.detail[0]?.mother)$("#mn").val(res.detail[0].mother);
+                    if(res.detail[0]?.qualification)$("#hq").val(res.detail[0].qualification);
+                    // console.log(typeof res.detail[0]?.status);
+                    
+                    if(res.detail[0]?.status && (res.detail[0]?.status == 3 || res.detail[0]?.status == 1))$("#enroled").val(res.detail[0].status);
+
+                  }
                  
                   //  $("#status").val(res.)
                    
