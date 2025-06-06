@@ -266,7 +266,7 @@ router.post("/addStudent", async (req, res) => {
   }
   if (error == false) {
 
-    const exists = db.collectionName.findOne({ _id: ObjectId(id) }) !== null; // true or false
+    const exists = await nitDB.collection.findOne({ _id: ObjectId(id) }) !== null; // true or false
     console.log("exists value -- >",exists);
     
 
