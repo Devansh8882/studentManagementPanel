@@ -58,11 +58,11 @@
   </table>
 
   <div class="pagination">
-    <button class="page-btn">Prev</button>
-    <span class="page-number">1</span>
+    <!-- <button class="page-btn">Prev</button>
+    <span class="page-number">1</span> -->
     <!-- <span class="page-number">2</span>
     <span class="page-number">3</span> -->
-    <button class="page-btn">Next</button>
+    <!-- <button class="page-btn">Next</button> -->
   </div>
 </div>
 

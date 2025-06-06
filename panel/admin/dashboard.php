@@ -43,6 +43,19 @@
   $(document).ready(function() {
     updateDateTime();
     setInterval(updateDateTime, 1000); 
+      
+      $.ajax({
+        url: 'http://localhost:3000/v1/studentList',  
+        type: 'POST',                
+        data: {"page":"dshbrd"},
+        success: function(response) {
+          console.log("success api call");
+          
+        },
+        error: function(xhr, status, error) {
+          console.error("Error: ", error);  
+        }
+      });
   });
 </script>
 

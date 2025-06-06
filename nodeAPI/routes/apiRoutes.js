@@ -394,6 +394,13 @@ router.post("/studentList", async (req, res) => {
             code: 200,
           });
       }
+    }else if(page == "dshbrd"){
+       let leads = await nitDB.collection("student").find({status:{$ne : 0}},{status:1}).toArray();
+          return res.json({
+            status: "success",
+            leads,
+            code: 200,
+          });
     }
     else{
        return res.json({
@@ -476,7 +483,7 @@ router.post("/delete",async (req,res) =>{
 
       if(deleted.acknowledged && deleted.deletedCount > 0){
       return  res.json({status:"success",
-            message:"data deleted successfully.",
+            message:"Info Deleted successfully.",
             code:200,
           });
       }else{
