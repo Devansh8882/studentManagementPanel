@@ -227,7 +227,7 @@
                         let count = 1; 
                             for (lead in leads) {
                                 console.log("lead",leads[lead]);
-                                
+                                if(leads[lead].status != 3){
                                     printDataList += ` <tr>
                                                         <td>${count++}</td>
                                                         <td>${leads[lead].name}</td>
@@ -247,7 +247,13 @@
 
                                                     </tr>`;
                                                     // open-status-modal -->class to open model..
+                                }
+
                         } 
+                        
+                        if(printDataList == ""){
+                          printDataList = ` <tr class="no-data-row"><td colspan="10">🚫 No Data Found</td></tr>` 
+                        }
                         
                        }else{
                           printDataList = ` <tr class="no-data-row"><td colspan="10">🚫 No Data Found</td></tr>` 
@@ -315,8 +321,8 @@
                 if(res.leads.length > 0){
                         let count = 1; 
                             for (lead in res.leads) {
-                                console.log("lead",res.leads[lead]);
-                                
+                                console.log("lead",res.leads[lead],res.leads[lead].status);
+                                if(res.leads[lead].status != 3){
                                     printDataList += ` <tr>
                                                         <td>${count++}</td>
                                                         <td>${res.leads[lead].name}</td>
@@ -336,7 +342,13 @@
 
                                                     </tr>`;
                                                     // open-status-modal -->class to open model..
+                                }
+                                  
                         } 
+                         
+                        if(printDataList == ""){
+                          printDataList = ` <tr class="no-data-row"><td colspan="10">🚫 No Data Found</td></tr>` 
+                        }
                         
                        }else{
                           printDataList = ` <tr class="no-data-row"><td colspan="10">🚫 No Data Found</td></tr>`

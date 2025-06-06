@@ -266,8 +266,8 @@ router.post("/addStudent", async (req, res) => {
   }
   if (error == false) {
 
-    const exists = await nitDB.collection.findOne({ _id: ObjectId(id) }) !== null; // true or false
-    console.log("exists value -- >",exists);
+    const exists = await nitDB.collection("student").findOne({ _id:new ObjectId(id) }) !== null; // true or false
+    console.log("exists value -- >",exists,data,);
     
 
     console.log("data before inserting..", data);
@@ -276,11 +276,15 @@ router.post("/addStudent", async (req, res) => {
     if(exists == false){
 
       inserted = await nitDB.collection("student").insertOne(data);
+
+       if (inserted?.acknowledged){
+              inserted = await nitDB.collection("studentLead").updateOne({_id:new ObjectId(id)}, {$set:{"status":3}}, {$upsert:true});
+
+       }
       console.log("inserted-->", inserted);
     }else{
       
-      inserted = await nitDB.collection("student").updateOne({_id:id}, {$set:data}, {$upsert:true});
-      console.log("upserted -->", upserted);
+      inserted = await nitDB.collection("student").updateOne({_id:new ObjectId(id)}, {$set:data}, {$upsert:true});
     }
 
     if (inserted?.acknowledged) {
@@ -323,11 +327,11 @@ router.post("/addStudent", async (req, res) => {
           }
         });
         // Mail Done....
-      }
+      }      
 
       return res.json({
         status: "success",
-        message: "Student Enrolled..!!",
+        message: (data.status == 3)?"Student Enrolled..!!":"Form Submitted Successfully...!",
         code: 200,
       });
     } else {
@@ -352,7 +356,7 @@ router.post("/studentList", async (req, res) => {
       if(id){
         let detail = await nitDB
           .collection("studentLead")
-          .find({_id :new ObjectId(id)})
+          .find({_id :new ObjectId(id),status:{$ne:3}})
           .toArray();
 
         return res.json({
@@ -361,7 +365,7 @@ router.post("/studentList", async (req, res) => {
           code:200
         })
       }else{
-        let leads = await nitDB.collection("studentLead").find({}).toArray();
+        let leads = await nitDB.collection("studentLead").find({status:{$ne : 3}}).toArray();
           return res.json({
             status: "success",
             leads,
@@ -374,7 +378,7 @@ router.post("/studentList", async (req, res) => {
       if(id){
         let detail = await nitDB
           .collection("student")
-          .find({_id :new ObjectId(id)})
+          .find({_id :new ObjectId(id),status:{$ne : 0}})
           .toArray();
 
         return res.json({
@@ -383,7 +387,7 @@ router.post("/studentList", async (req, res) => {
           code:200
         })
       }else{
-        let leads = await nitDB.collection("student").find({}).toArray();
+        let leads = await nitDB.collection("student").find({status:{$ne : 0}}).toArray();
           return res.json({
             status: "success",
             leads,
